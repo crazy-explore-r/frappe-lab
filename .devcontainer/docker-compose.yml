@@ -1,0 +1,58 @@
+services:
+  database:
+    image: mariadb:10.11
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    env_file:
+      - frappe-lab.env
+    volumes:
+      - database-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  redis-cache:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  redis-queue:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  redis-socketio:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  workspace:
+    image: frappe/bench:v5.31.0
+    command: sleep infinity
+    env_file:
+      - frappe-lab.env
+    environment:
+      SHELL: /bin/bash
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    depends_on:
+      database:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+      redis-socketio:
+        condition: service_started
+    ports:
+      - "8000-8005:8000-8005"
+      - "9000-9005:9000-9005"
+      - "6787:6787"
+    restart: unless-stopped
+
+volumes:
+  database-data:

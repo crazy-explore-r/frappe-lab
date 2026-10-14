@@ -1,0 +1,17 @@
+# Generated Frappe bench and site data
+/frappe-bench/
+
+# Local-only environment overrides
+.env
+.env.*
+!.env.example
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Local editor / operating-system artifacts
+.vscode/*.log
+.DS_Store

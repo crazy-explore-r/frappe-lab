@@ -1,0 +1,60 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Frappe Lab: Web Server",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/frappe-bench/apps/frappe/frappe/utils/bench_helper.py",
+      "args": [
+        "frappe",
+        "serve",
+        "--port",
+        "8000",
+        "--noreload",
+        "--nothreading"
+      ],
+      "cwd": "${workspaceFolder}/frappe-bench/sites",
+      "env": {
+        "DEV_SERVER": "1"
+      },
+      "justMyCode": false
+    },
+    {
+      "name": "Frappe Lab: Default Worker",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/frappe-bench/apps/frappe/frappe/utils/bench_helper.py",
+      "args": ["frappe", "worker", "--queue", "default"],
+      "cwd": "${workspaceFolder}/frappe-bench/sites",
+      "env": {
+        "DEV_SERVER": "1"
+      },
+      "justMyCode": false
+    },
+    {
+      "name": "Frappe Lab: Short Worker",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/frappe-bench/apps/frappe/frappe/utils/bench_helper.py",
+      "args": ["frappe", "worker", "--queue", "short"],
+      "cwd": "${workspaceFolder}/frappe-bench/sites",
+      "env": {
+        "DEV_SERVER": "1"
+      },
+      "justMyCode": false
+    },
+    {
+      "name": "Frappe Lab: Long Worker",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/frappe-bench/apps/frappe/frappe/utils/bench_helper.py",
+      "args": ["frappe", "worker", "--queue", "long"],
+      "cwd": "${workspaceFolder}/frappe-bench/sites",
+      "env": {
+        "DEV_SERVER": "1"
+      },
+      "justMyCode": false
+    }
+  ]
+}

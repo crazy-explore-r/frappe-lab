@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "name": "erpnext",
+      "repository": "https://github.com/frappe/erpnext",
+      "branch": "version-15",
+      "enabled": true
+    },
+    {
+      "name": "hrms",
+      "repository": "https://github.com/frappe/hrms",
+      "branch": "version-15",
+      "enabled": false
+    }
+  ]
+}

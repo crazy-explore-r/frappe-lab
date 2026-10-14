@@ -1,0 +1,41 @@
+{
+  "name": "Frappe Lab",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "frappe",
+  "forwardPorts": [8000, 9000, 6787],
+  "portsAttributes": {
+    "8000": {
+      "label": "Frappe Desk",
+      "onAutoForward": "openBrowser"
+    },
+    "9000": {
+      "label": "Socket.IO"
+    },
+    "6787": {
+      "label": "Asset watcher"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {}
+  },
+  "postCreateCommand": "bash /workspace/scripts/bootstrap.sh",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.debugpy",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-mysql",
+        "visualstudioexptteam.vscodeintellicode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "${workspaceFolder}/frappe-bench/env/bin/python",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "debug.node.autoAttach": "disabled"
+      }
+    }
+  }
+}

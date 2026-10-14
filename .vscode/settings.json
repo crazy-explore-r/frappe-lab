@@ -1,0 +1,23 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/frappe-bench/env/bin/python",
+  "debug.node.autoAttach": "disabled",
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  },
+  "sqltools.connections": [
+    {
+      "name": "Frappe Lab database",
+      "driver": "MariaDB",
+      "server": "database",
+      "port": 3306,
+      "database": "",
+      "username": "root",
+      "password": "frappe-lab-dev-only",
+      "previewLimit": 50,
+      "mysqlOptions": {
+        "authProtocol": "default"
+      }
+    }
+  ]
+}
