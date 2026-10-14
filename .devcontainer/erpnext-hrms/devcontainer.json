@@ -8,11 +8,6 @@
   "remoteEnv": {
     "LAB_PRESET": "erpnext-hrms"
   },
-  "hostRequirements": {
-    "cpus": 2,
-    "memory": "8gb",
-    "storage": "32gb"
-  },
   "features": {
     "ghcr.io/devcontainers/features/sshd:1": {}
   },
