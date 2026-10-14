@@ -31,8 +31,7 @@ services:
 
   workspace:
     image: frappe/bench:v5.31.0
-    init: true
-    command: bash /workspace/scripts/run.sh
+    command: sleep infinity
     env_file:
       - frappe-lab.env
     environment:

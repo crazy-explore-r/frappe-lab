@@ -4,7 +4,6 @@
   "service": "workspace",
   "workspaceFolder": "/workspace",
   "remoteUser": "frappe",
-  "overrideCommand": false,
   "remoteEnv": {
     "LAB_PRESET": "erpnext-hrms"
   },
