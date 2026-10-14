@@ -1,0 +1,12 @@
+{
+  "title": "Frappe + ERPNext",
+  "description": "ERPNext on Frappe version-15, for exploring DocTypes, workflows, APIs and customisation.",
+  "frappe_branch": "version-15",
+  "apps": [
+    {
+      "name": "erpnext",
+      "repository": "https://github.com/frappe/erpnext",
+      "branch": "version-15"
+    }
+  ]
+}

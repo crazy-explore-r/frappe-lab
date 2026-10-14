@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frappe Lab</title>
+<meta name="description" content="Try Frappe and ERPNext in your browser for a demo, a version check or a quick idea. No server to rent or install, only a free GitHub account.">
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --text: #14181f;
+    --muted: #5b6573;
+    --line: #dfe3ea;
+    --accent: #1f5fd6;
+    --accent-text: #ffffff;
+    --ok-bg: #e3f4ea;
+    --ok-text: #14633a;
+    --warn-bg: #fdf0d8;
+    --warn-text: #7a4b05;
+    --code-bg: #eef1f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1116;
+      --surface: #161b22;
+      --text: #e6e9ee;
+      --muted: #9aa5b4;
+      --line: #2a313c;
+      --accent: #6ea0ff;
+      --accent-text: #0b1220;
+      --ok-bg: #12301f;
+      --ok-text: #7fdca4;
+      --warn-bg: #36280e;
+      --warn-text: #f0c46a;
+      --code-bg: #1e252f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  header { padding: 56px 0 24px; }
+  h1 { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.15; margin: 0 0 12px; }
+  h2 { font-size: 1.4rem; margin: 48px 0 16px; }
+  p { margin: 0 0 12px; }
+  .lede { font-size: 1.15rem; color: var(--muted); max-width: 640px; }
+  a { color: var(--accent); }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .steps { display: grid; gap: 12px; list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 16px 16px 60px;
+    position: relative;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-text);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+  }
+  .steps strong { display: block; margin-bottom: 2px; }
+  .cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card h3 { margin: 0; font-size: 1.15rem; }
+  .card p { color: var(--muted); flex: 1; }
+  .badge {
+    align-self: flex-start;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn-text); }
+  .btn {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+  }
+  .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .note ul { margin: 8px 0 0; padding-left: 20px; }
+  .note li { margin-bottom: 6px; }
+  dl { margin: 0; }
+  dt { font-weight: 600; margin-top: 16px; }
+  dd { margin: 4px 0 0; color: var(--muted); }
+  footer { margin: 56px 0 40px; color: var(--muted); font-size: 0.92rem; border-top: 1px solid var(--line); padding-top: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Try Frappe and ERPNext without setting up a server</h1>
+    <p class="lede">Frappe Lab starts a temporary, ready-to-use Frappe site in your browser. Use it to see a version, show a demo, test an idea or build a custom app. When you are done, delete it.</p>
+  </header>
+
+  <main>
+    <h2>Get started in three steps</h2>
+    <ol class="steps">
+      <li>
+        <strong>Have a free GitHub account</strong>
+        Frappe Lab runs on GitHub Codespaces, so you need a GitHub account. It is free to create and takes a couple of minutes.
+        <p style="margin-top:8px"><a class="btn secondary" href="https://github.com/signup" rel="noopener">Create a free GitHub account</a></p>
+      </li>
+      <li>
+        <strong>Choose a stack and press Launch</strong>
+        GitHub will ask you to confirm creating a Codespace. Accept the defaults, or pick the machine size GitHub suggests.
+      </li>
+      <li>
+        <strong>Wait, then open the site</strong>
+        The first start takes roughly 8 to 10 minutes while Frappe is installed. Watch the progress in the Codespace terminal. When it finishes, open the <em>Ports</em> tab, then open the address for port 8000 and sign in with the demo login shown below.
+      </li>
+    </ol>
+
+    <h2 id="stacks">Choose a stack</h2>
+    <div class="cards">
+      <article class="card">
+        <span class="badge warn">Not yet tested</span>
+        <h3>Frappe Framework</h3>
+        <p>The framework on its own. For exploring Frappe or building a custom app.</p>
+        <a class="btn" href="https://codespaces.new/crazy-explore-r/frappe-lab?devcontainer_path=.devcontainer%2Ffrappe%2Fdevcontainer.json&amp;machine=standardLinux32gb" rel="noopener">Launch Frappe</a>
+      </article>
+      <article class="card">
+        <span class="badge ok">Tested</span>
+        <h3>Frappe + ERPNext</h3>
+        <p>ERPNext on Frappe version-15. For exploring DocTypes, workflows, APIs and customisation.</p>
+        <a class="btn" href="https://codespaces.new/crazy-explore-r/frappe-lab?devcontainer_path=.devcontainer%2Ferpnext%2Fdevcontainer.json&amp;machine=standardLinux32gb" rel="noopener">Launch ERPNext</a>
+      </article>
+      <article class="card">
+        <span class="badge warn">Not yet tested</span>
+        <h3>Frappe + ERPNext + HRMS</h3>
+        <p>ERPNext together with the HRMS app, both on version-15.</p>
+        <a class="btn" href="https://codespaces.new/crazy-explore-r/frappe-lab?devcontainer_path=.devcontainer%2Ferpnext-hrms%2Fdevcontainer.json&amp;machine=standardLinux32gb" rel="noopener">Launch ERPNext + HRMS</a>
+      </article>
+    </div>
+    <p style="margin-top:12px;color:var(--muted)">"Tested" means the install, site start and Administrator login were checked in a real Codespace. The other stacks use the same setup but have not been run yet. If GitHub shows a list of configurations instead of starting one, choose the stack above from the list.</p>
+
+    <h2>Demo login</h2>
+    <div class="note">
+      <p>Username <code>Administrator</code> &nbsp; Password <code>frappe-lab-admin-only</code></p>
+      <p>This password is public, because it is written in this project's code. It is for throwaway demo sites only. Never use it for real data, and never reuse it anywhere else.</p>
+    </div>
+
+    <h2>Good to know</h2>
+    <div class="note">
+      <ul>
+        <li><strong>It is temporary.</strong> A Codespace stops when idle and is a disposable workspace, not a hosted server. Do not keep important data in it.</li>
+        <li><strong>It uses your GitHub allowance.</strong> Free accounts include a monthly amount of Codespaces time and storage, and larger machines use it faster. See <a href="https://docs.github.com/en/billing/managing-billing-for-your-products/about-billing-for-github-codespaces" rel="noopener">GitHub's current limits</a>. Without a payment method on file, Codespaces stops when the allowance runs out.</li>
+        <li><strong>Stop it when you are done.</strong> Open <a href="https://github.com/codespaces" rel="noopener">github.com/codespaces</a> to stop or delete a Codespace.</li>
+        <li><strong>The site is private by default.</strong> Only your GitHub account can open it. Sharing it with a client means making the port public in the Ports tab, and some organisations block that.</li>
+      </ul>
+    </div>
+
+    <h2>Questions</h2>
+    <dl>
+      <dt>Do I need to install anything?</dt>
+      <dd>No. Everything runs in the browser through GitHub Codespaces.</dd>
+      <dt>Can I choose another version or add apps?</dt>
+      <dd>Yes. Stacks are small files in <a href="https://github.com/crazy-explore-r/frappe-lab/tree/main/config/presets" rel="noopener">config/presets</a>. Change the branches or add an app, and the setup follows. Not every combination of app branches is compatible.</dd>
+      <dt>Is this an official Frappe or ERPNext product?</dt>
+      <dd>No. Frappe Lab is an independent community project.</dd>
+    </dl>
+  </main>
+
+  <footer>
+    <p><a href="https://github.com/crazy-explore-r/frappe-lab" rel="noopener">Source on GitHub</a> · MIT licensed · Early development. An earlier version of this workspace was informed by <a href="https://github.com/vjFaLk/frappe_codespace" rel="noopener">frappe_codespace</a> by Valmik (vjFaLk).</p>
+  </footer>
+</div>
+</body>
+</html>

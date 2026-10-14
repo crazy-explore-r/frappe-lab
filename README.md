@@ -1,60 +1,99 @@
 # Frappe Lab
 
-**A configurable playground for Frappe Framework, ERPNext, and other Frappe apps.**
+**A temporary Frappe and ERPNext environment you can start from a web page, with no server to set up.**
 
-Frappe Lab is a development workspace built around GitHub Codespaces, Docker Compose, and Frappe Bench. Its goal is to give developers a repeatable place to test apps, explore framework behavior, and debug customizations without preparing a machine from scratch.
+Frappe Lab runs Frappe Framework, ERPNext and other Frappe apps in a GitHub Codespace. It is for showing a demo, checking how a version looks, trying an idea, or developing and debugging a custom app. The workspace is disposable: start it, use it, delete it.
 
-> **Status:** Early development. One end-to-end run has been verified in GitHub Codespaces (2-core, 8 GB): the bootstrap finished in about 8 minutes, and Frappe 15.123.0 with ERPNext 15.122.0 opened through the forwarded port 8000 and accepted an Administrator login. A rerun of the bootstrap kept existing data. Not yet verified: free-plan accounts, other app combinations such as HRMS, the debugger profiles, and the site starting automatically when a stopped workspace resumes (run `bench start` yourself for now).
+**Launcher:** <https://crazy-explore-r.github.io/frappe-lab/> (explains the steps for people without a GitHub account and has one Launch button per stack)
 
-## What it is designed for
+> **Status: early development.** One stack, Frappe + ERPNext, has been verified end to end in GitHub Codespaces. See [What has been tested](#what-has-been-tested). Do not rely on anything listed as untested.
 
-- Install Frappe Framework and select compatible apps from a manifest.
-- Configure app repositories and branches without editing bootstrap commands.
-- Use a preconfigured VS Code workspace and debugger.
-- Keep database and Redis services isolated from the Frappe workspace.
-- Recreate a disposable environment for demos, learning, and app compatibility checks.
+## Stacks
+
+| Stack | Preset | Status |
+|---|---|---|
+| Frappe + ERPNext (version-15) | `erpnext` | Tested |
+| Frappe Framework only (version-15) | `frappe` | Not yet tested |
+| Frappe + ERPNext + HRMS (version-15) | `erpnext-hrms` | Not yet tested |
+
+Each stack is a small file in [`config/presets`](config/presets), selected by a matching folder in [`.devcontainer`](.devcontainer).
 
 ## Start a workspace
 
-1. Open this repository on GitHub.
-2. Select **Code → Codespaces → Create codespace on the default branch**.
-3. Wait for the bootstrap command to finish; follow the Codespaces creation log if it takes time.
-4. In the terminal, run `cd frappe-bench && bench start`, or launch **Frappe Lab: Web Server** from the VS Code **Run and Debug** panel.
-5. Open forwarded port **8000**.
+**From the launcher (no technical knowledge needed):** open the launcher page, choose a stack and press Launch. You need a free GitHub account.
 
-The initial configuration uses development-only database and site administrator passwords. These values are public because they are in this demo repository. **Never use them for production, real customer data, or a publicly exposed server.**
+**From this repository:** select **Code → Codespaces → New with options**, then choose a configuration (`erpnext`, `frappe` or `erpnext-hrms`).
 
-## Configure your apps
+The first start takes roughly 8 to 10 minutes. When it finishes, the web server starts on its own. Open the **Ports** tab, open the address for port 8000, and sign in as `Administrator` with the demo password from [`.devcontainer/frappe-lab.env`](.devcontainer/frappe-lab.env).
 
-Edit [`.devcontainer/frappe-lab.env`](.devcontainer/frappe-lab.env) to select the Frappe branch, site name, and local demo credentials.
+That password is public because it is in this repository. It is for disposable demo sites only. **Never use it for real data or any server reachable from the internet.**
 
-Edit [`config/apps.json`](config/apps.json) to choose which app repositories to install. Each enabled entry defines a repository, branch, and install flag. Add app dependencies before the apps that require them. The app name must match the app's directory/package name so Bench can find it.
+## Choose versions and apps
 
-Keep every app branch compatible with the selected Frappe branch; arbitrary combinations are not guaranteed to work. The committed defaults target the version-15 line and enable ERPNext. HRMS is provided as an optional example and is disabled by default.
+A preset is a JSON file:
 
-## Developer workflow
+```json
+{
+  "title": "Frappe + ERPNext + HRMS",
+  "description": "ERPNext with the HRMS app, all on the version-15 branches.",
+  "frappe_branch": "version-15",
+  "apps": [
+    { "name": "erpnext", "repository": "https://github.com/frappe/erpnext", "branch": "version-15" },
+    { "name": "hrms", "repository": "https://github.com/frappe/hrms", "branch": "version-15", "requires": ["erpnext"] }
+  ]
+}
+```
 
-VS Code includes launch configurations for the Frappe web server and background workers. Use the **Run and Debug** panel to select the process you need.
+- Change `frappe_branch` or an app's `branch` to use another version. Every app branch must be compatible with the Frappe branch; not every combination works.
+- Set `"enabled": false` on an app to skip it. Apps install in list order, and `requires` stops the setup early if a dependency is missing or listed after the app that needs it.
+- To add a stack, add a preset file and a [`.devcontainer`](.devcontainer) folder with the same name. Tests check that they match.
 
-Useful references:
+The preset is validated before anything is installed. Run `python3 scripts/lab_config.py check` to validate all of them.
 
-- [Frappe Framework installation requirements](https://docs.frappe.io/framework/user/en/installation)
-- [Frappe Bench commands](https://github.com/frappe/bench)
-- [ERPNext repository](https://github.com/frappe/erpnext)
-- [Frappe HRMS repository](https://github.com/frappe/hrms)
+## Develop and debug
+
+[`.vscode/launch.json`](.vscode/launch.json) has debug profiles for the web server and the background workers. The web server runs from `bench start` by default; stop that process before starting the debug profile for the web server.
+
+Useful references: [Frappe installation requirements](https://docs.frappe.io/framework/user/en/installation), [Frappe Bench](https://github.com/frappe/bench), [ERPNext](https://github.com/frappe/erpnext), [Frappe HRMS](https://github.com/frappe/hrms).
+
+## What has been tested
+
+Run in GitHub Codespaces on a 2-core, 8 GB machine, from the repository owner's account (its plan type was not checked):
+
+- First start of the Frappe + ERPNext stack on Python 3.12: setup finished in about 8 minutes.
+- The site opened through the forwarded port in a browser and accepted the Administrator login. Installed versions were Frappe 15.123.0 and ERPNext 15.122.0.
+- Rerunning the setup on a finished workspace took 12 seconds and kept existing data.
+
+Automated checks run on every push (preset validation, unit tests, shell syntax, Dev Container and Compose configuration). They do not start Frappe.
+
+**Not verified yet:**
+
+- The `frappe` and `erpnext-hrms` stacks.
+- The web server starting by itself after setup and after a stopped Codespace resumes (the supervised start in [`scripts/run.sh`](scripts/run.sh)).
+- A free-plan GitHub account. Machine sizes and the monthly allowance are set by GitHub.
+- The launcher's Launch links selecting a stack from the browser.
+- The debugger profiles.
+- Local development with Docker outside Codespaces.
+
+## Resources and limits
+
+- Needs a GitHub account. Codespaces time and storage count against that account's allowance; see [GitHub's billing page](https://docs.github.com/en/billing/managing-billing-for-your-products/about-billing-for-github-codespaces).
+- Codespaces stop when idle, and the site is private to your account unless you make the port public.
+- The setup needs MariaDB, three Redis instances and the Frappe processes. The launch links ask for a 4-core, 16 GB machine; the verified minimum is 2-core, 8 GB.
+- Node is v24 in the base image although Frappe version-15 lists Node 18. The asset build passed, but this is not otherwise checked.
+
+More detail: [architecture](docs/architecture.md), [troubleshooting](docs/troubleshooting.md).
 
 ## Credits
 
-The early version of this project was informed by the community project [`frappe_codespace`](https://github.com/vjFaLk/frappe_codespace) by [Valmik (vjFaLk)](https://github.com/vjFaLk). Frappe Lab is being independently redesigned and maintained with its own configuration, workflow, and roadmap.
+An earlier version of this workspace was informed by [`frappe_codespace`](https://github.com/vjFaLk/frappe_codespace) by [Valmik (vjFaLk)](https://github.com/vjFaLk). Frappe Lab has since been rebuilt as a separate project with its own presets, bootstrap, launcher and tests. The original MIT license notice is kept in [`license.txt`](license.txt).
 
-Frappe Lab is a community project and is not an official Frappe or ERPNext product.
-
-The original MIT license notice is retained in [`license.txt`](license.txt).
+Frappe Lab is a community project. It is not an official Frappe or ERPNext product.
 
 ## Contributing
 
-Bug reports and pull requests are welcome. Please include the operating environment, Frappe and app branches, and the relevant setup output. Remove credentials and other sensitive information from logs before sharing.
+Bug reports and pull requests are welcome. Include the preset, the Frappe and app branches, and the relevant lines of the creation log, with credentials removed.
 
 ## License
 
-MIT. See [`license.txt`](license.txt) for the retained copyright and license notice.
+MIT. See [`license.txt`](license.txt).
