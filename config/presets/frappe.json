@@ -1,0 +1,6 @@
+{
+  "title": "Frappe Framework",
+  "description": "Frappe Framework on its own, for exploring the framework or building a custom app.",
+  "frappe_branch": "version-15",
+  "apps": []
+}

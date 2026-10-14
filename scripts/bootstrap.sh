@@ -2,18 +2,18 @@
 # Frappe Lab workspace initialization. Safe to re-run after a partial setup.
 set -Eeuo pipefail
 
-WORKSPACE_ROOT="/workspace"
+WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BENCH_DIR="$WORKSPACE_ROOT/frappe-bench"
-CONFIG_FILE="$WORKSPACE_ROOT/config/apps.json"
+READY_FILE="$BENCH_DIR/.lab-ready"
 
 # The official development image installs Bench in the user's local bin directory.
-export PATH="/home/frappe/.local/bin:$PATH"
-if [[ -f "/home/frappe/.nvm/nvm.sh" ]]; then
+export PATH="$HOME/.local/bin:$PATH"
+if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
   # shellcheck disable=SC1091
-  source "/home/frappe/.nvm/nvm.sh"
+  source "$HOME/.nvm/nvm.sh"
 fi
 
-FRAPPE_BRANCH="${FRAPPE_BRANCH:-version-15}"
+LAB_PRESET="${LAB_PRESET:-erpnext}"
 BENCH_PYTHON="${BENCH_PYTHON:-python3.12}"
 SITE_NAME="${SITE_NAME:-lab.localhost}"
 MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-frappe-lab-dev-only}"
@@ -45,46 +45,18 @@ wait_for_port() {
 
 command -v bench >/dev/null 2>&1 || die "Bench is not on PATH. Rebuild the Codespace container and try again."
 command -v "$BENCH_PYTHON" >/dev/null 2>&1 || die "$BENCH_PYTHON not found. Set BENCH_PYTHON to an installed Python 3.10-3.14."
-command -v python3 >/dev/null 2>&1 || die "Python 3 is required to read config/apps.json."
-[[ -f "$CONFIG_FILE" ]] || die "App manifest not found: $CONFIG_FILE"
+command -v python3 >/dev/null 2>&1 || die "Python 3 is required to read the preset."
 
-# Validate the manifest before making changes to the bench or site.
-APP_ROWS="$(python3 - "$CONFIG_FILE" "$FRAPPE_BRANCH" <<'PY'
-import json
-import re
-import sys
-from urllib.parse import urlparse
+# Validate the preset before making changes to the bench or site.
+log "Using preset '$LAB_PRESET'."
+PRESET_ROWS="$(python3 "$WORKSPACE_ROOT/scripts/lab_config.py" show "$LAB_PRESET")" \
+  || die "Preset '$LAB_PRESET' is invalid. Fix config/presets/$LAB_PRESET.json (or set LAB_PRESET to another preset) and rerun scripts/bootstrap.sh."
+mapfile -t PRESET_LINES <<< "$PRESET_ROWS"
+IFS=$'\t' read -r _ FRAPPE_BRANCH <<< "${PRESET_LINES[0]}"
+ENABLED_APPS=("${PRESET_LINES[@]:1}")
 
-config_path, default_branch = sys.argv[1], sys.argv[2]
-with open(config_path, encoding="utf-8") as source:
-    config = json.load(source)
-
-apps = config.get("apps", [])
-if not isinstance(apps, list):
-    raise SystemExit("The 'apps' property in config/apps.json must be a list.")
-
-for app in apps:
-    if not isinstance(app, dict):
-        raise SystemExit("Each entry in config/apps.json must be an object.")
-    if not app.get("enabled", False):
-        continue
-
-    name = app.get("name", "")
-    repository = app.get("repository", "")
-    branch = app.get("branch") or default_branch
-
-    if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", name):
-        raise SystemExit(f"Invalid app name in config/apps.json: {name!r}")
-    parsed = urlparse(repository if isinstance(repository, str) else "")
-    if parsed.scheme != "https" or not parsed.netloc:
-        raise SystemExit(f"App '{name}' must use an HTTPS Git repository URL.")
-    if not isinstance(branch, str) or not branch.strip():
-        raise SystemExit(f"App '{name}' requires a non-empty branch.")
-
-    print(f"{name}\t{repository}\t{branch}")
-PY
-)" || die "App manifest validation failed. Check config/apps.json."
-mapfile -t ENABLED_APPS <<< "$APP_ROWS"
+# Not ready until this run finishes; scripts/run.sh waits for the marker.
+rm -f "$READY_FILE"
 
 # The bench image ships a MariaDB 11.x client that requires TLS by default, but the
 # Compose database does not offer it. Traffic stays on the private Compose network.
@@ -146,8 +118,8 @@ fi
 
 bench --site "$SITE_NAME" set-config developer_mode 1
 
-# Apps install in manifest order. Add dependencies before apps that require them.
-for app_entry in "${ENABLED_APPS[@]}"; do
+# Apps install in the order listed in the preset (validated: dependencies come first).
+for app_entry in ${ENABLED_APPS[@]+"${ENABLED_APPS[@]}"}; do
   IFS=$'\t' read -r app_name app_repository app_branch <<< "$app_entry"
   [[ -n "$app_name" ]] || continue
 
@@ -169,6 +141,6 @@ done
 bench use "$SITE_NAME"
 bench --site "$SITE_NAME" clear-cache
 
-log "Bootstrap completed."
-log "Start the development processes with 'bench start' from $BENCH_DIR."
-log "Open forwarded port 8000 in Codespaces after the server starts."
+touch "$READY_FILE"
+log "Bootstrap completed. Site '$SITE_NAME' is ready; the web server starts automatically."
+log "Open forwarded port 8000 and log in as Administrator."

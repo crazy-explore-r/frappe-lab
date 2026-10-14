@@ -1,16 +1,18 @@
 {
+  "title": "Frappe + ERPNext + HRMS",
+  "description": "ERPNext with the HRMS app, all on the version-15 branches.",
+  "frappe_branch": "version-15",
   "apps": [
     {
       "name": "erpnext",
       "repository": "https://github.com/frappe/erpnext",
-      "branch": "version-15",
-      "enabled": true
+      "branch": "version-15"
     },
     {
       "name": "hrms",
       "repository": "https://github.com/frappe/hrms",
       "branch": "version-15",
-      "enabled": false
+      "requires": ["erpnext"]
     }
   ]
 }

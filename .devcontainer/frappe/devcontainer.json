@@ -1,24 +1,39 @@
 {
-  "name": "Frappe Lab",
-  "dockerComposeFile": "docker-compose.yml",
+  "name": "Frappe Lab: Frappe Framework",
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspace",
   "remoteUser": "frappe",
-  "forwardPorts": [8000, 9000, 6787],
-  "portsAttributes": {
-    "8000": {
-      "label": "Frappe Desk",
-      "onAutoForward": "openBrowser"
-    },
-    "9000": {
-      "label": "Socket.IO"
-    },
-    "6787": {
-      "label": "Asset watcher"
-    }
+  "overrideCommand": false,
+  "remoteEnv": {
+    "LAB_PRESET": "frappe"
+  },
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
   },
   "features": {
     "ghcr.io/devcontainers/features/sshd:1": {}
+  },
+  "forwardPorts": [
+    8000,
+    9000,
+    6787
+  ],
+  "portsAttributes": {
+    "8000": {
+      "label": "Frappe Desk",
+      "onAutoForward": "notify"
+    },
+    "9000": {
+      "label": "Socket.IO",
+      "onAutoForward": "silent"
+    },
+    "6787": {
+      "label": "Asset watcher",
+      "onAutoForward": "silent"
+    }
   },
   "postCreateCommand": "bash /workspace/scripts/bootstrap.sh",
   "shutdownAction": "stopCompose",

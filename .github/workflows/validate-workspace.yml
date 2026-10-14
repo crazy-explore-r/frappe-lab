@@ -3,7 +3,7 @@ name: Validate workspace configuration
 on:
   push:
     branches:
-      - master
+      - main
       - "feat/**"
   pull_request:
 
@@ -22,47 +22,26 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate JSON configuration
+      - name: Validate JSON files
         run: |
-          python -m json.tool .devcontainer/devcontainer.json >/dev/null
-          python -m json.tool config/apps.json >/dev/null
+          for f in .devcontainer/*/devcontainer.json config/presets/*.json .vscode/*.json; do
+            python -m json.tool "$f" >/dev/null && echo "ok: $f"
+          done
 
-      - name: Validate bootstrap shell syntax
-        run: for f in scripts/*.sh; do bash -n "$f"; done
+      - name: Validate presets
+        run: python scripts/lab_config.py check
 
-      - name: Validate app manifest
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Check bash can read every preset
+        run: bash tests/preset_parsing.sh
+
+      - name: Validate shell syntax
         run: |
-          python - <<'PY'
-          import json
-          import re
-          from urllib.parse import urlparse
-
-          with open("config/apps.json", encoding="utf-8") as f:
-              config = json.load(f)
-
-          apps = config.get("apps")
-          assert isinstance(apps, list), "'apps' must be a list"
-          names = set()
-
-          for app in apps:
-              assert isinstance(app, dict), "Each app entry must be an object"
-              if not app.get("enabled", False):
-                  continue
-
-              name = app.get("name", "")
-              repository = app.get("repository", "")
-              branch = app.get("branch", "")
-              assert re.fullmatch(r"[A-Za-z0-9_-]+", name), f"Invalid app name: {name!r}"
-              assert name not in names, f"Duplicate enabled app: {name}"
-              names.add(name)
-
-              parsed = urlparse(repository)
-              assert parsed.scheme == "https" and parsed.netloc, f"Invalid HTTPS repository for {name}"
-              assert isinstance(branch, str) and branch.strip(), f"Missing branch for {name}"
-
-          assert names, "Enable at least one app for the default workspace"
-          print(f"Validated {len(names)} enabled app(s).")
-          PY
+          for f in scripts/*.sh tests/*.sh; do
+            bash -n "$f" && echo "ok: $f"
+          done
 
       - name: Validate Docker Compose configuration
         run: docker compose -f .devcontainer/docker-compose.yml config --quiet
